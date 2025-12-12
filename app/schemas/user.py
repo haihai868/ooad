@@ -12,7 +12,8 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str = Field(..., min_length=6)
+    # bcrypt giới hạn 72 byte, đặt max_length 72 để tránh lỗi hash
+    password: str = Field(..., min_length=6, max_length=72)
 
 
 class UserUpdate(BaseModel):
@@ -102,5 +103,5 @@ class PasswordResetRequest(BaseModel):
 
 class PasswordReset(BaseModel):
     token: str
-    new_password: str = Field(..., min_length=6)
+    new_password: str = Field(..., min_length=6, max_length=72)
 

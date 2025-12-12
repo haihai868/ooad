@@ -71,7 +71,7 @@ class AuthService:
     def create_token_for_user(user: User) -> str:
         expires_delta = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": user.id, "username": user.username, "role": user.role.value},
+            data={"sub": str(user.id), "username": user.username, "role": user.role.value},
             expires_delta=expires_delta
         )
         return access_token
