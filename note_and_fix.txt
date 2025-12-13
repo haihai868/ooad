@@ -1,0 +1,7 @@
+fix:
+get deck assigned from class
+
+tested: Auth, Users, Decks, Classes
+
+note:
+exam_assignments: exams assign to classes
