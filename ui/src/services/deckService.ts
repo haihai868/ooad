@@ -33,7 +33,7 @@ export const deckService = {
     await api.delete(`/decks/${deckId}`)
   },
 
-  addFlashcard: async (deckId: number, flashcard: Omit<Flashcard, 'id' | 'deck_id' | 'created_at'>): Promise<Flashcard> => {
+  addFlashcard: async (deckId: number, flashcard: Omit<Flashcard, 'id'| 'created_at'>): Promise<Flashcard> => {
     const response = await api.post<Flashcard>(`/decks/${deckId}/flashcards`, flashcard)
     return response.data
   },

@@ -16,6 +16,8 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
+    console.log("oj")
+
     try {
       await login(username, password)
       navigate('/dashboard')

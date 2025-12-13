@@ -38,6 +38,7 @@ export default function CreateFlashcardPage() {
         front_content: frontContent,
         back_content: backContent,
         image_url: imageUrl || undefined,
+        deck_id: Number(id),
       })
       navigate(`/dashboard/decks/${id}`)
     } catch (error) {
