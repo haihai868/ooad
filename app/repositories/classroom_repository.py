@@ -125,4 +125,12 @@ class ClassMembersRepository:
             ClassMembers.class_id == class_id,
             ClassMembers.student_id == student_id
         ).first() is not None
+    
+    @staticmethod
+    def get_classes_by_student(db: Session, student_id: int) -> List[Class]:
+        members = db.query(ClassMembers).filter(ClassMembers.student_id == student_id).all()
+        class_ids = [m.class_id for m in members]
+        if not class_ids:
+            return []
+        return db.query(Class).filter(Class.id.in_(class_ids)).all()
 

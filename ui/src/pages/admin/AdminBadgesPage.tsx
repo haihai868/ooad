@@ -3,6 +3,7 @@ import Layout from '../../components/Layout'
 import { badgeService } from '../../services/badgeService'
 import { Badge } from '../../types'
 import { Trophy, Plus, Edit, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function AdminBadgesPage() {
   const [badges, setBadges] = useState<Badge[]>([])
@@ -194,9 +195,12 @@ export default function AdminBadgesPage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button className="btn-brutal bg-accent flex-1">
+                <Link
+                  to={`/dashboard/badges/${badge.id}/edit`}
+                  className="btn-brutal bg-accent flex-1"
+                >
                   <Edit className="w-4 h-4" />
-                </button>
+                </Link>
                 <button
                   onClick={() => handleDelete(badge.id)}
                   className="btn-brutal bg-red-500 text-white"

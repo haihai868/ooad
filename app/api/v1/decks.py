@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
-from app.core.dependencies import get_current_active_user, get_current_student
+from app.core.dependencies import get_current_active_user, get_current_student, get_current_user
 from app.models.user import User
 from app.schemas.deck import (
     DeckCreate, DeckUpdate, DeckResponse, DeckWithFlashcards,
@@ -33,7 +33,9 @@ async def browse_decks(
     db: Session = Depends(get_db)
 ):
     """Browse public decks (Guest and Authenticated users)"""
-    return DeckService.browse_decks(db, skip, limit, is_public)
+    # For now, just return all public decks
+    # Frontend can filter out own decks if needed
+    return DeckService.browse_decks(db, skip, limit, is_public, None)
 
 
 @router.get("/my-decks", response_model=List[DeckResponse])

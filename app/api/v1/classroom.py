@@ -157,6 +157,48 @@ async def get_class_decks(
     return [DeckResponse.model_validate(deck) for deck in decks]
 
 
+@router.get("/{class_id}/exams")
+async def get_class_exams(
+    class_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Get exams assigned to a class"""
+    from app.schemas.exam import ExamAssignmentResponse, ExamResponse
+    from sqlalchemy.orm import joinedload
+    from app.models.exam import ExamAssignment
+    
+    class_obj = ClassRepository.get_by_id(db, class_id)
+    if not class_obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Class not found")
+    
+    # Check access - teacher or member can view
+    if class_obj.teacher_id != current_user.id:
+        if not ClassMembersRepository.is_member(db, class_id, current_user.id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to view exams of this class"
+            )
+    
+    exams = db.query(ExamAssignment).options(
+        joinedload(ExamAssignment.exam)
+    ).filter(ExamAssignment.class_id == class_id).all()
+    
+    result = []
+    for exam_assignment in exams:
+        assignment_dict = {
+            "id": exam_assignment.id,
+            "class_id": exam_assignment.class_id,
+            "exam_id": exam_assignment.exam_id,
+            "start_date": exam_assignment.start_date,
+            "due_date": exam_assignment.due_date,
+            "exam": ExamResponse.model_validate(exam_assignment.exam) if exam_assignment.exam else None
+        }
+        result.append(ExamAssignmentResponse.model_validate(assignment_dict))
+    
+    return result
+
+
 @router.delete("/{class_id}/decks/{deck_id}")
 async def remove_deck_from_class(
     class_id: int,

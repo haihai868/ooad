@@ -115,8 +115,26 @@ async def delete_user(
     db: Session = Depends(get_db)
 ):
     """Delete user (Admin only)"""
-    success = UserRepository.delete(db, user_id)
-    if not success:
+    # Prevent deleting yourself
+    if user_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete your own account"
+        )
+    
+    user = UserRepository.get_by_id(db, user_id)
+    if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return {"message": "User deleted successfully"}
+    
+    try:
+        success = UserRepository.delete(db, user_id)
+        if not success:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        return {"message": "User deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete user: {str(e)}"
+        )
 

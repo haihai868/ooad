@@ -72,8 +72,11 @@ class ExamAssignmentBase(BaseModel):
     due_date: datetime
 
 
-class ExamAssignmentCreate(ExamAssignmentBase):
-    pass
+class ExamAssignmentCreate(BaseModel):
+    class_id: int
+    start_date: datetime
+    due_date: datetime
+    # exam_id is set by the endpoint
 
 
 class ExamAssignmentUpdate(BaseModel):
@@ -83,6 +86,7 @@ class ExamAssignmentUpdate(BaseModel):
 
 class ExamAssignmentResponse(ExamAssignmentBase):
     id: int
+    exam: Optional[ExamResponse] = None
 
     class Config:
         from_attributes = True

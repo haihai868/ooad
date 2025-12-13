@@ -4,8 +4,10 @@ import { deckService } from '../../services/deckService'
 import { Deck } from '../../types'
 import { Search, Heart, BookOpen } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function BrowseDecksPage() {
+  const { user } = useAuth()
   const [decks, setDecks] = useState<Deck[]>([])
   const [favorites, setFavorites] = useState<Deck[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -43,10 +45,17 @@ export default function BrowseDecksPage() {
     }
   }
 
-  const filteredDecks = decks.filter((deck) =>
-    deck.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    deck.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredDecks = decks.filter((deck) => {
+    // Filter out own decks
+    if (user && deck.owner_id === user.id) {
+      return false
+    }
+    // Filter by search term
+    return (
+      deck.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      deck.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  })
 
   if (loading) {
     return (

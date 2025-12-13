@@ -15,6 +15,7 @@ from app.repositories.exam_repository import (
     ExamRepository, QuestionRepository, ExamAssignmentRepository, ExamResultRepository
 )
 from app.repositories.classroom_repository import ClassMembersRepository
+from app.models.exam import ExamAssignment
 
 router = APIRouter()
 
@@ -260,6 +261,42 @@ async def take_exam(
     result = ExamResultRepository.create(
         db, current_user.id, exam_id, final_score, 0
     )
+    
+    return result
+
+
+@router.get("/assigned", response_model=List[ExamAssignmentResponse])
+async def get_assigned_exams(
+    current_user: User = Depends(get_current_student),
+    db: Session = Depends(get_db)
+):
+    """Get exams assigned to classes the student belongs to (Student only)"""
+    # Get all classes the student is a member of
+    student_classes = ClassMembersRepository.get_classes_by_student(db, current_user.id)
+    class_ids = [c.id for c in student_classes]
+    
+    if not class_ids:
+        return []
+    
+    # Get all exam assignments for these classes with exam relationship loaded
+    from sqlalchemy.orm import joinedload
+    assignments = db.query(ExamAssignment).options(
+        joinedload(ExamAssignment.exam)
+    ).filter(
+        ExamAssignment.class_id.in_(class_ids)
+    ).all()
+    
+    result = []
+    for assignment in assignments:
+        assignment_dict = {
+            "id": assignment.id,
+            "class_id": assignment.class_id,
+            "exam_id": assignment.exam_id,
+            "start_date": assignment.start_date,
+            "due_date": assignment.due_date,
+            "exam": ExamResponse.model_validate(assignment.exam) if assignment.exam else None
+        }
+        result.append(ExamAssignmentResponse.model_validate(assignment_dict))
     
     return result
 

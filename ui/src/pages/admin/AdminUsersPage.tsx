@@ -3,6 +3,7 @@ import Layout from '../../components/Layout'
 import { userService } from '../../services/userService'
 import { User } from '../../types'
 import { Users, Edit, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([])
@@ -83,9 +84,12 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="p-4">
                       <div className="flex gap-2">
-                        <button className="btn-brutal bg-accent">
+                        <Link
+                          to={`/dashboard/users/${user.id}/edit`}
+                          className="btn-brutal bg-accent"
+                        >
                           <Edit className="w-4 h-4" />
-                        </button>
+                        </Link>
                         <button
                           onClick={() => handleDelete(user.id)}
                           className="btn-brutal bg-red-500 text-white"

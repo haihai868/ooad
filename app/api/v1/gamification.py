@@ -68,6 +68,10 @@ async def delete_badge(
     if not badge:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Badge not found")
     
+    # Delete associated user badges first
+    from app.models.gamification import UserBadges
+    db.query(UserBadges).filter(UserBadges.badge_id == badge_id).delete()
+    
     db.delete(badge)
     db.commit()
     return {"message": "Badge deleted successfully"}
@@ -75,10 +79,10 @@ async def delete_badge(
 
 @router.get("/badges/my", response_model=List[UserBadgeResponse])
 async def get_my_badges(
-    current_user: User = Depends(get_current_student),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    """View and claim badges (Student only)"""
+    """View and claim badges"""
     user_badges = UserBadgesRepository.get_by_user(db, current_user.id)
     return user_badges
 

@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from app.repositories.deck_repository import DeckRepository, FlashcardRepository
 from app.schemas.deck import DeckCreate, DeckUpdate, FlashcardCreate, FlashcardUpdate
 from app.models.user import User
+from typing import List, Optional
 
 
 class DeckService:
@@ -30,8 +31,11 @@ class DeckService:
         return deck
     
     @staticmethod
-    def browse_decks(db: Session, skip: int = 0, limit: int = 100, is_public: bool = True) -> list:
-        return DeckRepository.get_all(db, skip, limit, is_public)
+    def browse_decks(db: Session, skip: int = 0, limit: int = 100, is_public: bool = True, exclude_owner_id: Optional[int] = None) -> list:
+        decks = DeckRepository.get_all(db, skip, limit, is_public)
+        if exclude_owner_id:
+            decks = [d for d in decks if d.owner_id != exclude_owner_id]
+        return decks
     
     @staticmethod
     def update_deck(db: Session, deck_id: int, deck_update: DeckUpdate, user: User) -> dict:
@@ -134,6 +138,12 @@ class FlashcardService:
             )
         
         deck = DeckRepository.get_by_id(db, flashcard.deck_id)
+        if not deck:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Deck not found"
+            )
+        
         if deck.owner_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

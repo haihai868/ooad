@@ -10,6 +10,8 @@ import DeckStudyPage from '../pages/student/DeckStudyPage'
 import BrowseDecksPage from '../pages/student/BrowseDecksPage'
 import CreateDeckPage from '../pages/student/CreateDeckPage'
 import CreateFlashcardPage from '../pages/student/CreateFlashcardPage'
+import EditDeckPage from '../pages/student/EditDeckPage'
+import EditFlashcardPage from '../pages/student/EditFlashcardPage'
 import BadgesPage from '../pages/student/BadgesPage'
 import ClassesPage from '../pages/student/ClassesPage'
 import ClassDetailPage from '../pages/student/ClassDetailPage'
@@ -21,10 +23,14 @@ import TeacherClassDetailPage from '../pages/teacher/TeacherClassDetailPage'
 import TeacherExamsPage from '../pages/teacher/TeacherExamsPage'
 import CreateExamPage from '../pages/teacher/CreateExamPage'
 import ExamDetailPage from '../pages/teacher/ExamDetailPage'
+import EditExamPage from '../pages/teacher/EditExamPage'
+import CreateQuestionPage from '../pages/teacher/CreateQuestionPage'
 import TakeExamPage from '../pages/student/TakeExamPage'
 import AdminDashboard from '../pages/admin/AdminDashboard'
 import AdminUsersPage from '../pages/admin/AdminUsersPage'
+import EditUserPage from '../pages/admin/EditUserPage'
 import AdminBadgesPage from '../pages/admin/AdminBadgesPage'
+import EditBadgePage from '../pages/admin/EditBadgePage'
 import ProtectedRoute from './ProtectedRoute'
 
 function AppRoutes() {
@@ -126,6 +132,22 @@ function AppRoutes() {
             }
           />
           <Route
+            path="/dashboard/decks/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditDeckPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id/flashcards/:flashcardId/edit"
+            element={
+              <ProtectedRoute>
+                <EditFlashcardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/dashboard/badges"
             element={
               <ProtectedRoute>
@@ -218,6 +240,22 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/dashboard/exams/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditExamPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/exams/:id/questions/new"
+            element={
+              <ProtectedRoute>
+                <CreateQuestionPage />
+              </ProtectedRoute>
+            }
+          />
         </>
       )}
       {/* Admin Routes */}
@@ -236,6 +274,22 @@ function AppRoutes() {
             element={
               <ProtectedRoute>
                 <AdminBadgesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/users/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditUserPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/badges/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditBadgePage />
               </ProtectedRoute>
             }
           />
