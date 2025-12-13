@@ -11,6 +11,8 @@ from app.schemas.learning import (
     UserStatsUpdate, AlgoConfigsUpdate, StudyProgressResponse
 )
 from app.models.learning import CardStatus
+from app.schemas.learning import CardRetentionDataCreate
+from app.repositories.learning_repository import AlgoConfigsRepository
 
 
 class LearningService:
@@ -66,8 +68,6 @@ class LearningService:
         # Get or create retention data
         retention = CardRetentionDataRepository.get_by_user_and_card(db, user_id, card_id)
         if not retention:
-            from app.schemas.learning import CardRetentionDataCreate
-            from app.repositories.learning_repository import AlgoConfigsRepository
             algo_config = AlgoConfigsRepository.get_by_user(db, user_id)
             if not algo_config:
                 algo_config = AlgoConfigsRepository.create_or_update(db, user_id)
