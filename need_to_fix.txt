@@ -1,3 +1,0 @@
-get deck assigned from class
-
-tested: Auth, Users, Decks, Classes

@@ -132,6 +132,31 @@ async def assign_deck_to_class(
     return {"message": "Deck assigned to class successfully"}
 
 
+@router.get("/{class_id}/decks")
+async def get_class_decks(
+    class_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Get decks assigned to a class"""
+    from app.schemas.deck import DeckResponse
+    
+    class_obj = ClassRepository.get_by_id(db, class_id)
+    if not class_obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Class not found")
+    
+    # Check access - teacher or member can view
+    if class_obj.teacher_id != current_user.id:
+        if not ClassMembersRepository.is_member(db, class_id, current_user.id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to view decks of this class"
+            )
+    
+    decks = ClassDecksRepository.get_decks_by_class(db, class_id)
+    return [DeckResponse.model_validate(deck) for deck in decks]
+
+
 @router.delete("/{class_id}/decks/{deck_id}")
 async def remove_deck_from_class(
     class_id: int,
