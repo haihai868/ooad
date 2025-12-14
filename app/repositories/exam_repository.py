@@ -90,8 +90,10 @@ class QuestionRepository:
 
 class ExamAssignmentRepository:
     @staticmethod
-    def create(db: Session, assignment_data: ExamAssignmentCreate) -> ExamAssignment:
-        db_assignment = ExamAssignment(**assignment_data.model_dump())
+    def create(db: Session, assignment_data: ExamAssignmentCreate, exam_id: int) -> ExamAssignment:
+        assignment_dict = assignment_data.model_dump()
+        assignment_dict['exam_id'] = exam_id
+        db_assignment = ExamAssignment(**assignment_dict)
         db.add(db_assignment)
         db.commit()
         db.refresh(db_assignment)

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Layout from '../../components/Layout'
 import api from '../../services/api'
 import { Class, Exam } from '../../types'
-import { Users, BookOpen, Plus } from 'lucide-react'
+import { Users, BookOpen, Plus, FileText } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function TeacherDashboard() {
@@ -44,7 +44,7 @@ export default function TeacherDashboard() {
       <div className="space-y-6">
         <h1 className="text-4xl font-black">TEACHER DASHBOARD</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="card-brutal bg-primary text-white">
             <div className="flex items-center gap-4">
               <Users className="w-12 h-12" />
@@ -64,6 +64,16 @@ export default function TeacherDashboard() {
               </div>
             </div>
           </div>
+
+          <Link to="/dashboard/decks/new" className="card-brutal bg-accent text-white hover:opacity-90 transition-opacity">
+            <div className="flex items-center gap-4">
+              <FileText className="w-12 h-12" />
+              <div>
+                <p className="text-sm font-bold opacity-90">CREATE DECK</p>
+                <p className="text-lg font-black">Click to create</p>
+              </div>
+            </div>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

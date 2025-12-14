@@ -104,6 +104,13 @@ export default function Layout({ children }: LayoutProps) {
                 {isTeacher && (
                   <>
                     <Link
+                      to="/dashboard/decks"
+                      className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
+                    >
+                      <BookOpen className="w-5 h-5" />
+                      My Decks
+                    </Link>
+                    <Link
                       to="/dashboard/classes"
                       className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
                     >

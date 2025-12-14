@@ -131,8 +131,12 @@ async def create_question(
             detail="Not authorized to add questions to this exam"
         )
     
-    question_data.exam_id = exam_id
-    return QuestionRepository.create(db, question_data)
+    # Set exam_id in question_data
+    question_dict = question_data.model_dump()
+    question_dict['exam_id'] = exam_id
+    from app.schemas.exam import QuestionCreate
+    question_data_fixed = QuestionCreate(**question_dict)
+    return QuestionRepository.create(db, question_data_fixed)
 
 
 @router.put("/questions/{question_id}", response_model=QuestionResponse)
@@ -198,8 +202,8 @@ async def assign_exam_to_class(
             detail="Not authorized to assign this exam"
         )
     
-    assignment_data.exam_id = exam_id
-    assignment = ExamAssignmentRepository.create(db, assignment_data)
+    # Create assignment with exam_id
+    assignment = ExamAssignmentRepository.create(db, assignment_data, exam_id)
     
     # TODO: Send notifications to class members
     
@@ -271,34 +275,43 @@ async def get_assigned_exams(
     db: Session = Depends(get_db)
 ):
     """Get exams assigned to classes the student belongs to (Student only)"""
-    # Get all classes the student is a member of
-    student_classes = ClassMembersRepository.get_classes_by_student(db, current_user.id)
-    class_ids = [c.id for c in student_classes]
-    
-    if not class_ids:
-        return []
-    
-    # Get all exam assignments for these classes with exam relationship loaded
-    from sqlalchemy.orm import joinedload
-    assignments = db.query(ExamAssignment).options(
-        joinedload(ExamAssignment.exam)
-    ).filter(
-        ExamAssignment.class_id.in_(class_ids)
-    ).all()
-    
-    result = []
-    for assignment in assignments:
-        assignment_dict = {
-            "id": assignment.id,
-            "class_id": assignment.class_id,
-            "exam_id": assignment.exam_id,
-            "start_date": assignment.start_date,
-            "due_date": assignment.due_date,
-            "exam": ExamResponse.model_validate(assignment.exam) if assignment.exam else None
-        }
-        result.append(ExamAssignmentResponse.model_validate(assignment_dict))
-    
-    return result
+    try:
+        # Get all classes the student is a member of
+        from app.models.classroom import ClassMembers
+        members = db.query(ClassMembers).filter(ClassMembers.student_id == current_user.id).all()
+        class_ids = [m.class_id for m in members] if members else []
+        
+        if not class_ids:
+            return []
+        
+        # Get all exam assignments for these classes with exam relationship loaded
+        from sqlalchemy.orm import joinedload
+        assignments = db.query(ExamAssignment).options(
+            joinedload(ExamAssignment.exam)
+        ).filter(
+            ExamAssignment.class_id.in_(class_ids)
+        ).all()
+        
+        result = []
+        for assignment in assignments:
+            assignment_dict = {
+                "id": assignment.id,
+                "class_id": assignment.class_id,
+                "exam_id": assignment.exam_id,
+                "start_date": assignment.start_date,
+                "due_date": assignment.due_date,
+                "exam": ExamResponse.model_validate(assignment.exam) if assignment.exam else None
+            }
+            result.append(ExamAssignmentResponse.model_validate(assignment_dict))
+        
+        return result
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get assigned exams: {str(e)}"
+        )
 
 
 @router.get("/results/my", response_model=List[ExamResultResponse])

@@ -127,14 +127,58 @@ async def delete_user(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     
     try:
+        # Delete related records first (in correct order to avoid foreign key issues)
+        from app.models.gamification import UserBadges
+        from app.models.learning import UserStats, CardRetentionData, ReviewLogs, AlgoConfigs
+        from app.models.deck import UserFavoriteDecks, Deck
+        from app.models.classroom import ClassMembers, Class
+        from app.models.exam import ExamResult, Exam
+        
+        # Delete exam results first (references exams)
+        db.query(ExamResult).filter(ExamResult.user_id == user_id).delete()
+        db.commit()
+        
+        # Delete decks owned by user (will cascade delete flashcards, favorites, etc.)
+        db.query(Deck).filter(Deck.owner_id == user_id).delete()
+        db.commit()
+        
+        # Delete exams owned by user (will cascade delete questions, assignments, results)
+        db.query(Exam).filter(Exam.owner_id == user_id).delete()
+        db.commit()
+        
+        # Delete classes owned by user (will cascade delete members, decks, exams)
+        db.query(Class).filter(Class.teacher_id == user_id).delete()
+        db.commit()
+        
+        # Delete user badges
+        db.query(UserBadges).filter(UserBadges.user_id == user_id).delete()
+        # Delete user stats
+        db.query(UserStats).filter(UserStats.user_id == user_id).delete()
+        # Delete card retention data
+        db.query(CardRetentionData).filter(CardRetentionData.user_id == user_id).delete()
+        # Delete review logs
+        db.query(ReviewLogs).filter(ReviewLogs.user_id == user_id).delete()
+        # Delete algo configs
+        db.query(AlgoConfigs).filter(AlgoConfigs.user_id == user_id).delete()
+        # Delete favorite decks
+        db.query(UserFavoriteDecks).filter(UserFavoriteDecks.user_id == user_id).delete()
+        # Delete class memberships
+        db.query(ClassMembers).filter(ClassMembers.student_id == user_id).delete()
+        
+        db.commit()
+        
+        # Now delete the user
         success = UserRepository.delete(db, user_id)
         if not success:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return {"message": "User deleted successfully"}
     except Exception as e:
         db.rollback()
+        import traceback
+        traceback.print_exc()
+        error_detail = str(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete user: {str(e)}"
+            detail=f"Failed to delete user: {error_detail}"
         )
 

@@ -256,6 +256,46 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/dashboard/decks/new"
+            element={
+              <ProtectedRoute>
+                <CreateDeckPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id"
+            element={
+              <ProtectedRoute>
+                <DeckDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditDeckPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id/flashcards/new"
+            element={
+              <ProtectedRoute>
+                <CreateFlashcardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id/flashcards/:flashcardId/edit"
+            element={
+              <ProtectedRoute>
+                <EditFlashcardPage />
+              </ProtectedRoute>
+            }
+          />
         </>
       )}
       {/* Admin Routes */}

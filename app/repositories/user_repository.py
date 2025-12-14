@@ -29,7 +29,21 @@ class UserRepository:
         
         update_data = user_update.model_dump(exclude_unset=True)
         for field, value in update_data.items():
-            setattr(user, field, value)
+            # Handle enum conversion properly
+            if field == 'role' and value is not None:
+                from app.models.user import UserRole
+                if isinstance(value, str):
+                    user.role = UserRole(value)
+                else:
+                    user.role = value
+            elif field == 'status' and value is not None:
+                from app.models.user import UserStatus
+                if isinstance(value, str):
+                    user.status = UserStatus(value)
+                else:
+                    user.status = value
+            else:
+                setattr(user, field, value)
         
         db.commit()
         db.refresh(user)

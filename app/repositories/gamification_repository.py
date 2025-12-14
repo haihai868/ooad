@@ -46,18 +46,57 @@ class UserBadgesRepository:
         ).first()
     
     @staticmethod
-    def create_or_update(db: Session, user_id: int, badge_id: int, progress: int = 0) -> UserBadges:
+    def create_or_update(db: Session, user_id: int, badge_id: int, progress: int = 0, check_criteria: bool = False) -> UserBadges:
+        from app.repositories.learning_repository import UserStatsRepository
+        from app.models.gamification import Badge
+        
         existing = UserBadgesRepository.get_by_user_and_badge(db, user_id, badge_id)
         
+        # If check_criteria is True, verify user actually meets criteria before unlocking
+        should_unlock = False
+        if check_criteria and progress >= 100:
+            badge = BadgeRepository.get_by_id(db, badge_id)
+            if badge and badge.criteria_json:
+                stats = UserStatsRepository.get_by_user(db, user_id)
+                if stats:
+                    # Check if user actually meets criteria
+                    criteria = badge.criteria_json
+                    operator = criteria.get('operator', 'gte')
+                    target_value = criteria.get('value', 0)
+                    current_value = 0
+                    
+                    if criteria.get('type') == 'streak':
+                        current_value = stats.current_streak or 0
+                    elif criteria.get('type') == 'cards_learned':
+                        current_value = stats.cards_learned or 0
+                    elif criteria.get('type') == 'total_xp':
+                        current_value = stats.total_xp or 0
+                    
+                    if operator == 'gte':
+                        should_unlock = current_value >= target_value
+                    elif operator == 'lte':
+                        should_unlock = current_value <= target_value
+                    elif operator == 'eq':
+                        should_unlock = current_value == target_value
+                    else:
+                        should_unlock = current_value >= target_value
+        else:
+            # If not checking criteria, use progress >= 100
+            should_unlock = progress >= 100
+        
         if existing:
-            existing.progress = progress
-            if progress >= 100 and existing.status == BadgeStatus.LOCKED:
-                existing.status = BadgeStatus.UNLOCKED
+            # Only update progress if it's higher than current
+            if progress > existing.progress:
+                existing.progress = progress
+                # Only unlock if criteria is met and currently locked
+                if should_unlock and existing.status == BadgeStatus.LOCKED:
+                    existing.status = BadgeStatus.UNLOCKED
             db.commit()
             db.refresh(existing)
             return existing
         else:
-            status = BadgeStatus.UNLOCKED if progress >= 100 else BadgeStatus.LOCKED
+            # Create new user badge
+            status = BadgeStatus.UNLOCKED if should_unlock else BadgeStatus.LOCKED
             db_user_badge = UserBadges(
                 user_id=user_id,
                 badge_id=badge_id,

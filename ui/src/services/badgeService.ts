@@ -1,6 +1,6 @@
 import api from './api'
 import { Badge, UserBadge, BadgeCriteria } from '../types'
-import { checkBadgeCriteria } from '../utils/badgeChecker'
+import { checkBadgeCriteria, calculateBadgeProgress } from '../utils/badgeChecker'
 
 export const badgeService = {
   getAllBadges: async (): Promise<Badge[]> => {
@@ -46,7 +46,15 @@ export const badgeService = {
         const shouldUnlock = checkBadgeCriteria(userStats, badge.criteria_json)
         if (shouldUnlock) {
           try {
-            await badgeService.unlockBadge(badge.id, 100)
+            // Calculate progress based on criteria
+            const progress = calculateBadgeProgress(userStats, badge.criteria_json)
+            // Only unlock if progress >= 100 (fully achieved)
+            if (progress >= 100) {
+              await badgeService.unlockBadge(badge.id, 100)
+            } else {
+              // Update progress but don't unlock yet
+              await badgeService.unlockBadge(badge.id, progress)
+            }
           } catch (error) {
             console.error(`Failed to unlock badge ${badge.id}:`, error)
           }
