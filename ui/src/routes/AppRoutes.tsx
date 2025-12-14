@@ -201,6 +201,70 @@ function AppRoutes() {
       {user?.role === 'TEACHER' && (
         <>
           <Route
+            path="/dashboard/decks"
+            element={
+              <ProtectedRoute>
+                <DecksPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/browse"
+            element={
+              <ProtectedRoute>
+                <BrowseDecksPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id"
+            element={
+              <ProtectedRoute>
+                <DeckDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id/study"
+            element={
+              <ProtectedRoute>
+                <DeckStudyPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/new"
+            element={
+              <ProtectedRoute>
+                <CreateDeckPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id/flashcards/new"
+            element={
+              <ProtectedRoute>
+                <CreateFlashcardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditDeckPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/decks/:id/flashcards/:flashcardId/edit"
+            element={
+              <ProtectedRoute>
+                <EditFlashcardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/dashboard/classes"
             element={
               <ProtectedRoute>

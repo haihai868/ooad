@@ -13,7 +13,8 @@ class Deck(Base):
     description = Column(Text, nullable=True)
     is_public = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now()
+    , onupdate=func.now())
 
     # Relationships
     owner = relationship("User", back_populates="owned_decks", foreign_keys=[owner_id])

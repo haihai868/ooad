@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { LogOut, Home, Trophy, BookOpen, Users, Settings } from 'lucide-react'
+import { LogOut, Home, Trophy, BookOpen, Users } from 'lucide-react'
 
 interface LayoutProps {
   children: ReactNode
@@ -25,7 +25,7 @@ export default function Layout({ children }: LayoutProps) {
               <BookOpen className="w-8 h-8" />
               <span className="text-2xl font-black">FLASHCARD LEARN</span>
             </Link>
-            
+
             <div className="flex items-center gap-4">
               <span className="badge-brutal bg-accent">
                 {user?.username?.toUpperCase()}
@@ -33,7 +33,10 @@ export default function Layout({ children }: LayoutProps) {
               <span className="badge-brutal bg-secondary text-white">
                 {user?.role}
               </span>
-              <button onClick={handleLogout} className="btn-brutal bg-primary text-white">
+              <button
+                onClick={handleLogout}
+                className="btn-brutal bg-primary text-white"
+              >
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
@@ -53,7 +56,7 @@ export default function Layout({ children }: LayoutProps) {
                   <Home className="w-5 h-5" />
                   Dashboard
                 </Link>
-                
+
                 {isStudent && (
                   <>
                     <Link
@@ -63,6 +66,7 @@ export default function Layout({ children }: LayoutProps) {
                       <BookOpen className="w-5 h-5" />
                       My Decks
                     </Link>
+
                     <Link
                       to="/dashboard/study"
                       className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
@@ -70,6 +74,7 @@ export default function Layout({ children }: LayoutProps) {
                       <BookOpen className="w-5 h-5" />
                       Study
                     </Link>
+
                     <Link
                       to="/dashboard/classes"
                       className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
@@ -77,13 +82,7 @@ export default function Layout({ children }: LayoutProps) {
                       <Users className="w-5 h-5" />
                       Classes
                     </Link>
-                    <Link
-                      to="/dashboard/exams"
-                      className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
-                    >
-                      <BookOpen className="w-5 h-5" />
-                      Exams
-                    </Link>
+
                     <Link
                       to="/dashboard/badges"
                       className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
@@ -91,6 +90,7 @@ export default function Layout({ children }: LayoutProps) {
                       <Trophy className="w-5 h-5" />
                       Badges
                     </Link>
+
                     <Link
                       to="/dashboard/leaderboard"
                       className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
@@ -100,7 +100,7 @@ export default function Layout({ children }: LayoutProps) {
                     </Link>
                   </>
                 )}
-                
+
                 {isTeacher && (
                   <>
                     <Link
@@ -111,22 +111,22 @@ export default function Layout({ children }: LayoutProps) {
                       My Decks
                     </Link>
                     <Link
-                      to="/dashboard/classes"
-                      className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
-                    >
-                      <Users className="w-5 h-5" />
-                      Classes
-                    </Link>
-                    <Link
                       to="/dashboard/exams"
                       className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
                     >
                       <BookOpen className="w-5 h-5" />
                       Exams
                     </Link>
+                    <Link
+                      to="/dashboard/classes"
+                      className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
+                    >
+                      <Users className="w-5 h-5" />
+                      Classes
+                    </Link>
                   </>
                 )}
-                
+
                 {isAdmin && (
                   <>
                     <Link
@@ -136,6 +136,7 @@ export default function Layout({ children }: LayoutProps) {
                       <Users className="w-5 h-5" />
                       Users
                     </Link>
+
                     <Link
                       to="/dashboard/badges/manage"
                       className="flex items-center gap-3 px-4 py-3 font-bold hover:bg-accent transition-colors"
@@ -155,4 +156,3 @@ export default function Layout({ children }: LayoutProps) {
     </div>
   )
 }
-

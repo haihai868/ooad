@@ -94,7 +94,8 @@ export default function DeckStudyPage() {
           </div>
         </div>
 
-        <div className="card-brutal min-h-[400px] flex flex-col">
+        <div className="card-brutal min-h-[420px] flex flex-col">
+          {/* Progress */}
           <div className="mb-4">
             <div className="h-4 border-2 border-dark bg-white">
               <div
@@ -104,20 +105,49 @@ export default function DeckStudyPage() {
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-center p-8">
-            {!showBack ? (
-              <div className="text-center">
-                <h2 className="text-3xl font-black mb-8">FRONT</h2>
-                <p className="text-2xl font-bold">{currentCard.front_content}</p>
+          {/* Flip Card */}
+          <div className="flex-1 flex items-center justify-center p-6 hover:cursor-pointer" onClick={() => setShowBack(!showBack)}
+          >
+            <div className="[perspective:1200px] w-full max-w-2xl">
+              <div
+                className={`
+          relative w-full min-h-[300px]
+          transition-transform duration-700
+          [transform-style:preserve-3d]
+          ${showBack ? '[transform:rotateY(180deg)]' : ''}
+        `}
+              >
+                {/* FRONT */}
+                <div className="absolute inset-0 card-brutal flex flex-col items-center justify-center p-8 text-center [backface-visibility:hidden]">
+
+                  {currentCard.image_url && (
+                    <img
+                      src={currentCard.image_url}
+                      alt="Flashcard"
+                      className="max-h-48 object-contain mb-4 border-4 border-dark rounded-xl bg-white p-2"
+                    />
+                  )}
+
+                  <p className="text-2xl font-bold">
+                    {currentCard.front_content}
+                  </p>
+                </div>
+
+                {/* BACK */}
+                <div className="absolute inset-0 card-brutal flex flex-col items-center justify-center p-8 text-center bg-accent
+          [backface-visibility:hidden]
+          [transform:rotateY(180deg)]
+        ">
+
+                  <p className="text-2xl font-bold">
+                    {currentCard.back_content}
+                  </p>
+                </div>
               </div>
-            ) : (
-              <div className="text-center">
-                <h2 className="text-3xl font-black mb-8">BACK</h2>
-                <p className="text-2xl font-bold">{currentCard.back_content}</p>
-              </div>
-            )}
+            </div>
           </div>
 
+          {/* Actions */}
           {!showBack ? (
             <button
               onClick={() => setShowBack(true)}
@@ -127,7 +157,10 @@ export default function DeckStudyPage() {
             </button>
           ) : (
             <div className="space-y-3">
-              <p className="text-center font-bold text-lg">How well did you know this?</p>
+              <p className="text-center font-bold text-lg">
+                How well did you know this?
+              </p>
+
               <div className="grid grid-cols-5 gap-3">
                 <button
                   onClick={() => handleQuality(0)}
@@ -165,6 +198,7 @@ export default function DeckStudyPage() {
             </div>
           )}
         </div>
+
       </div>
     </Layout>
   )
