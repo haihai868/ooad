@@ -30,6 +30,42 @@ async def get_all_badges(
     """Get all available badges"""
     return BadgeRepository.get_all(db)
 
+@router.get("/badges/get/my", response_model=List[UserBadgeResponse])
+async def get_my_badges(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """View and claim badges"""
+    try:
+        from sqlalchemy.orm import joinedload
+        from app.models.gamification import UserBadges
+        
+        user_badges = db.query(UserBadges).options(
+            joinedload(UserBadges.badge)
+        ).filter(UserBadges.user_id == current_user.id).all()
+        
+        result = []
+        for ub in user_badges:
+            ub_dict = {
+                "user_id": ub.user_id,
+                "badge_id": ub.badge_id,
+                "status": ub.status.value if hasattr(ub.status, 'value') else ub.status,
+                "progress": ub.progress,
+                "claimed_at": ub.claimed_at,
+                "badge": BadgeResponse.model_validate(ub.badge) if ub.badge else None
+            }
+            result.append(UserBadgeResponse.model_validate(ub_dict))
+        
+        return result
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get badges: {str(e)}"
+        )
+
+
 
 @router.get("/badges/{badge_id}", response_model=BadgeResponse)
 async def get_badge(
@@ -76,41 +112,6 @@ async def delete_badge(
     db.commit()
     return {"message": "Badge deleted successfully"}
 
-
-@router.get("/badges/my", response_model=List[UserBadgeResponse])
-async def get_my_badges(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
-):
-    """View and claim badges"""
-    try:
-        from sqlalchemy.orm import joinedload
-        from app.models.gamification import UserBadges
-        
-        user_badges = db.query(UserBadges).options(
-            joinedload(UserBadges.badge)
-        ).filter(UserBadges.user_id == current_user.id).all()
-        
-        result = []
-        for ub in user_badges:
-            ub_dict = {
-                "user_id": ub.user_id,
-                "badge_id": ub.badge_id,
-                "status": ub.status.value if hasattr(ub.status, 'value') else ub.status,
-                "progress": ub.progress,
-                "claimed_at": ub.claimed_at,
-                "badge": BadgeResponse.model_validate(ub.badge) if ub.badge else None
-            }
-            result.append(UserBadgeResponse.model_validate(ub_dict))
-        
-        return result
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get badges: {str(e)}"
-        )
 
 
 @router.put("/badges/{badge_id}/unlock", response_model=UserBadgeResponse)

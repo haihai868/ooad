@@ -46,7 +46,7 @@ export const examService = {
   },
 
   getAssignedExams: async (): Promise<ExamAssignment[]> => {
-    const response = await api.get<ExamAssignment[]>('/exams/assigned')
+    const response = await api.get<ExamAssignment[]>('/exams')
     return response.data
   },
 

@@ -9,7 +9,7 @@ export const badgeService = {
   },
 
   getMyBadges: async (): Promise<UserBadge[]> => {
-    const response = await api.get<UserBadge[]>('/gamification/badges/my')
+    const response = await api.get<UserBadge[]>('/gamification/badges/get/my')
     return response.data
   },
 
